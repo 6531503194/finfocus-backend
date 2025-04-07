@@ -9,3 +9,4 @@ class FinfocusApplication
 fun main(args: Array<String>) {
     runApplication<FinfocusApplication>(*args)
 }
+

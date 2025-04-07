@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/user")
+@CrossOrigin(origins = ["*"]) 
 class UserController(private val userRepo: UserRepository) {
 
     @PostMapping("/register")
@@ -23,14 +24,24 @@ class UserController(private val userRepo: UserRepository) {
 
 
     @PostMapping("/login")
-    fun login(@RequestBody request: LoginRequest): ResponseEntity<String> {
+    fun login(@RequestBody request: LoginRequest): ResponseEntity<Any> {
         val user = userRepo.findByEmail(request.email)
+    
         return if (user != null && user.password == request.password) {
-            ResponseEntity.ok("Login successful")
+            val responseBody = mapOf(
+                "message" to "Login successful",
+                "userId" to user.id  
+            )
+            ResponseEntity.ok(responseBody)
         } else {
-            ResponseEntity.badRequest().body("Invalid email or password")
+            val errorBody = mapOf(
+                "message" to "Invalid email or password",
+                "userId" to null
+            )
+            ResponseEntity.badRequest().body(errorBody)
         }
     }
+    
 
 
     @PutMapping("/{id}/balance")
