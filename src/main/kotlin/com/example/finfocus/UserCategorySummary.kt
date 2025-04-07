@@ -1,7 +1,7 @@
 package com.example.finfocus
 
 
-data class CategorySummary(
+data class UserCategorySummary(
     val categoryId: Long,
     val categoryName: String,
     val totalAmount: Double

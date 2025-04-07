@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/categories")
+@CrossOrigin(origins = ["*"]) 
 class CategoryController(
     private val categoryRepo: CategoryRepository
 ) {
