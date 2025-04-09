@@ -12,9 +12,48 @@ class CategoryController(
 
     @PostMapping("/add")
     fun addCategory(@RequestBody category: Category): ResponseEntity<ApiResponse<Category>> {
+        if (category.userId == null || category.name.isNullOrBlank()) {
+            return ResponseEntity.badRequest().body(ApiResponse(false, "Invalid category data"))
+        }
+    
+        // Optional: Check for duplicate by name + userId
+        val existing = categoryRepo.findByUserId(category.userId!!)
+            .firstOrNull { it.name.equals(category.name, ignoreCase = true) }
+    
+        if (existing != null) {
+            return ResponseEntity.badRequest().body(ApiResponse(false, "Category already exists"))
+        }
+    
         val saved = categoryRepo.save(category)
         return ResponseEntity.ok(ApiResponse(true, "Category created", saved))
     }
+    
+
+    @DeleteMapping("/user/{userId}/category/{categoryId}")
+    fun deleteUserCategory(
+        @PathVariable userId: Long,
+        @PathVariable categoryId: Long
+    ): ResponseEntity<ApiResponse<Void>> {
+        val category = categoryRepo.findById(categoryId).orElse(null)
+            ?: return ResponseEntity.badRequest().body(ApiResponse(false, "Category not found"))
+
+        // Prevent deleting global default categories
+        if (category.isDefault || category.userId != userId) {
+            return ResponseEntity.badRequest().body(ApiResponse(false, "Not allowed to delete this category"))
+        }
+
+        categoryRepo.deleteById(categoryId)
+        return ResponseEntity.ok(ApiResponse(true, "Category deleted"))
+    }
+
+
+    @GetMapping("/user/{userId}")
+    fun getUserCategories(@PathVariable userId: Long): ResponseEntity<ApiResponse<List<Category>>> {
+        
+        val categories = categoryRepo.findByUserId(userId)
+        return ResponseEntity.ok(ApiResponse(true, "User categories", categories))
+    }
+
 
     @GetMapping
     fun getAllCategories(): ResponseEntity<ApiResponse<List<Category>>> {

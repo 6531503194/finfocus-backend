@@ -50,6 +50,12 @@ interface ExpenseRepository : JpaRepository<Expense, Long> {
 }
 
 interface CategoryRepository : JpaRepository<Category, Long>{
+    
     fun findByName(name: String): Category?
+    fun findByUserIdOrIsDefaultTrue(userId: Long): List<Category>
+
+    fun findByIsDefaultTrue(): List<Category>
+    fun findByUserId(userId: Long): List<Category>
+    fun findByUserIdAndName(userId: Long, name: String): Category?
 }
 

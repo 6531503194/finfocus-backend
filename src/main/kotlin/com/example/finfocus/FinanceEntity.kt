@@ -21,6 +21,12 @@ data class Category(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
 
+    @Column(name = "is_default")
+    val isDefault: Boolean = false, 
+
+    @Column(name = "user_id")
+    val userId: Long? = null,
+
     val name: String
 )
 

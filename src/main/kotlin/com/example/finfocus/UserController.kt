@@ -6,7 +6,9 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/user")
 @CrossOrigin(origins = ["*"]) 
-class UserController(private val userRepo: UserRepository) {
+class UserController(
+                private val userRepo: UserRepository, 
+                private val categoryRepo: CategoryRepository) {
 
     @PostMapping("/register")
     fun register(@RequestBody user: User): ResponseEntity<String> {
@@ -18,10 +20,25 @@ class UserController(private val userRepo: UserRepository) {
             return ResponseEntity.badRequest().body("Username already taken")
         }
 
-        userRepo.save(user)
+        val savedUser = userRepo.save(user)
+        createDefaultCategoriesForUser(savedUser.id!!)
+
         return ResponseEntity.ok("User ${user.username} registered successfully with email ${user.email}!")
     }
 
+    fun createDefaultCategoriesForUser(userId: Long) {
+
+        val defaultCategories = categoryRepo.findByIsDefaultTrue()
+        val userCategories = defaultCategories.map {
+            Category(
+                name = it.name,
+                userId = userId,
+                isDefault = false
+            )
+        }
+        categoryRepo.saveAll(userCategories)
+    }
+    
 
     @PostMapping("/login")
     fun login(@RequestBody request: LoginRequest): ResponseEntity<Any> {
