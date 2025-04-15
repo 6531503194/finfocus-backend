@@ -12,6 +12,7 @@ data class User(
     val username: String,
     val password: String,
     var balance: Double = 0.0,
+    var saving: Double = 0.0,
     val email: String
 )
 

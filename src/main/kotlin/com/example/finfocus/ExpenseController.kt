@@ -80,6 +80,33 @@ class ExpenseController(
     }
 
 
+    @GetMapping("/all")
+    fun getAllExpensesForMonth(
+        @RequestParam userId: Long,
+        @RequestParam month: String // format: yyyy-MM
+    ): ResponseEntity<Map<String, Any>> {
+        return try {
+            val expenses = expenseService.getExpensesForUserByMonth(userId, month)
+                .map { expense ->
+                    val category = categoryRepo.findById(expense.categoryId).orElse(null)
+                    listOf(
+                        "id" to expense.id,
+                        "userId" to expense.userId,
+                        "categoryId" to expense.categoryId,
+                        "categoryName" to (category?.name ?: "Uncategorized"),
+                        "amount" to expense.amount,
+                        "description" to expense.description,
+                        "date" to expense.date.toString()
+                    ).toMap()
+                }
+
+            ResponseEntity.ok(mapOf("data" to expenses))
+        } catch (e: Exception) {
+            ResponseEntity.internalServerError().body(mapOf("error" to "Something went wrong"))
+        }
+    }
+
+
     @GetMapping("/history/{userId}")
     fun getHistory(@PathVariable userId: Long): ResponseEntity<ApiResponse<List<Expense>>> {
         val userExists = userRepo.existsById(userId)
@@ -110,8 +137,8 @@ class ExpenseController(
         }
 
         val spent = categorySummaries.sumOf { it.amount }
-        val goal = 10000.0
-        val saving = goal - spent
+        val goal = user.saving
+        val saving = user.balance - spent
 
         val summary = MonthlySummaryDto(
             goal = goal,

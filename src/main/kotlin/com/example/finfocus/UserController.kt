@@ -80,7 +80,16 @@ class UserController(
         return ResponseEntity.ok("Balance updated to: ${user.balance}")
     }
 
+    @PutMapping("/{id}/edit-saving")
+    fun editSaving(@PathVariable id: Long, @RequestParam saving: Double): ResponseEntity<String> {
+        val user = userRepo.findById(id).orElse(null)
+            ?: return ResponseEntity.badRequest().body("User not found")
 
+        user.saving = saving
+        userRepo.save(user)
+
+        return ResponseEntity.ok("Balance updated to: ${user.saving}")
+    }
 
     @GetMapping("/{id}")
     fun getUser(@PathVariable id: Long): ResponseEntity<User> =
