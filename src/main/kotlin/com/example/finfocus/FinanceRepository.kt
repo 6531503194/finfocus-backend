@@ -14,6 +14,9 @@ interface UserRepository : JpaRepository<User, Long> {
 interface ExpenseRepository : JpaRepository<Expense, Long> {
     fun findByUserId(userId: Long): List<Expense>
 
+    fun findByUserIdAndDateBetween(userId: Long, startDate: LocalDate, endDate: LocalDate): List<Expense>
+
+
     @Query("""
     SELECT c.id, c.name, SUM(e.amount)
     FROM Expense e

@@ -8,6 +8,8 @@ import com.example.finfocus.UserRepository
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.time.YearMonth
+
 
 @Service
 class ExpenseService(
@@ -67,4 +69,13 @@ class ExpenseService(
             "Sep" to 9, "Oct" to 10, "Nov" to 11, "Dec" to 12
         )
     }
+
+    fun getExpensesForUserByMonth(userId: Long, month: String): List<Expense> {
+        val yearMonth = YearMonth.parse(month) // e.g., "2025-04"
+        val startDate = yearMonth.atDay(1)
+        val endDate = yearMonth.atEndOfMonth()
+
+        return expenseRepository.findByUserIdAndDateBetween(userId, startDate, endDate)
+    }
+
 }
